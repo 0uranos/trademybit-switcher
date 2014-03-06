@@ -55,6 +55,10 @@ class TradeMyBitSwitcher(object):
       if bestalgo != currentalgo and bestalgo != None:
         # i.e. if we're not already mining the best algo
         self.switch_algo(bestalgo)
+      elif currentalgo == None:
+        # No miner running and profitability is similar, run the first algo
+        self.logger.warning('No miner running')
+        self.switch_algo(self.algos.keys()[0])
 
       # sleep
       self.logger.debug('Going to sleep for %dmin...' % self.idletime)
