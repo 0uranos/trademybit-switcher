@@ -8,10 +8,13 @@ apikey =
 idletime = 5
 
 # Profitability threshold to determine one algo as more profitable
-# With the default of 0.1, an algo needs to be 10% more profitable than 
+# With the default of 0.1, an algo needs to be 10% more profitable than
 # the other to be deemed more profitable.
 # This is used to not flap betwen algos once the profitability is similar.
 profitability_threshold = 0.1
+
+# Time (in seconds) to wait for one miner to exit before starting the other one
+switchtime = 1
 
 [cgminer]
 host=127.0.0.1

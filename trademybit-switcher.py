@@ -117,7 +117,7 @@ class TradeMyBitSwitcher(object):
     self.logger.info('=> Switching to %s (running %s)' % (algo, self.algos[algo].command))
     try:
       self.cgminer.quit()
-      time.sleep(1) # Wait for it to quit / Or check the process id?
+      time.sleep(self.switchtime) # Wait for it to quit / Or check the process id?
     except socket.error:
       pass # Cgminer not running
     subprocess.Popen(self.algos[algo].command)
@@ -151,12 +151,17 @@ class TradeMyBitSwitcher(object):
       self.logger.critical("Could not read apikey from config file")
       sys.exit()
     try:
-      self.idletime = int(config.get('Misc','idletime'))
+      self.idletime = config.getint('Misc','idletime')
     except:
       self.logger.warning("Could not read idletime from config file. Defaulting to 5 min")
       self.idletime = 5
     try:
-      self.profitability_threshold = float(config.get('Misc','profitability_threshold'))
+      self.switchtime = config.getint('Misc', 'switchtime')
+    except:
+      self.logger.warning("Could not read switchtime from config file. Defaulting to 1s")
+      self.switchtime = 1
+    try:
+      self.profitability_threshold = config.getfloat('Misc','profitability_threshold')
     except:
       self.logger.warning("Could not read profitability_threshold from config file. Defaulting to 10%")
       self.profitability_threshold = 0.1
@@ -166,7 +171,7 @@ class TradeMyBitSwitcher(object):
       self.logger.warning("Could not read cgminer host from config file. Defaulting to 127.0.0.1")
       self.cgminer_host = '127.0.0.1'
     try:
-      self.cgminer_port = int(config.get('cgminer', 'port'))
+      self.cgminer_port = config.getint('cgminer', 'port')
     except:
       self.logger.warning("Could not read cgminer port from config file. Defaulting to 4028")
       self.cgminer_host = 4028
