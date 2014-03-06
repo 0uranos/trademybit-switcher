@@ -1,0 +1,12 @@
+#!/bin/sh
+#Replace this script with one of your own.
+
+export DISPLAY=:0
+export GPU_USE_SYNC_OBJECTS=1
+export GPU_MAX_ALLOC_PERCENT=100
+
+# Path were vertminer is installed
+cd ~/BTC/vertminer-gpu
+
+#Start nscrypt mining with API access enabled for future instances of the above command
+screen -dmS vertminer ./vertminer --scrypt -c ~/.cgminer/nscrypt.conf --auto-fan --api-network --api-listen --api-allow W:127.0.0.1
