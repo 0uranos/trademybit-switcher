@@ -3,6 +3,13 @@
 # apikey = your-secret-key
 apikey =
 
+[Logging]
+# Log verbose information to the console output
+verbose = true
+
+# Uncomment below to enable logfile
+#logfile = /tmp/tmb-switcher.log
+
 [Misc]
 # Idle Time (in minutes) between two profitability checks.
 idletime = 5

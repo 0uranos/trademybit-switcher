@@ -1,17 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Retrieves the "bestalgo" JSON from the TMB website and returns a value
-# indicating which type of mining software is currently more profitable.
-#
-# Possible return values:
-#   "scrypt" - indicates that scrypt mining is more profitable
-#   "nscrypt" - indicates that nscrypt mining is more profitable
-#   "none" - indicates that there is no more than a 10% difference between
-#            scrypt and nscrypt mining profitability
-#
 
-###############
 import ConfigParser
 import logging
 import json
@@ -34,8 +24,6 @@ class Algo:
 
 class TradeMyBitSwitcher(object):
   def __init__(self):
-    self.__prepare_logger()
-
     # Define supported algo
     self.algos = {}
     self.algos['scrypt']  =  Algo('Scrypt')
@@ -85,6 +73,8 @@ class TradeMyBitSwitcher(object):
       algo2 = data[1]["algo"];
       score2 = float(data[1]["score"]);
 
+      self.logger.debug("%s : %f | %s: %f" % (algo1, score1, algo2, score2))
+
       # return result
       if (score2 - score1) / score1 > self.profitability_threshold:
         return algo2
@@ -122,27 +112,54 @@ class TradeMyBitSwitcher(object):
       pass # Cgminer not running
     subprocess.Popen(self.algos[algo].command)
 
-  def __prepare_logger(self):
+  # Configure the logger
+  def __prepare_logger(self, logging_config={}):
+    logfile = logging_config.get('logfile')
+
+    # Set console log level based on the config
+    if bool(logging_config.get('verbose')):
+      log_level = logging.DEBUG
+    else:
+      log_level = logging.INFO
+
     # Prepare logger
     self.logger = logging.getLogger()
     self.logger.setLevel(logging.DEBUG)
+
+    ## Console logging
     
     # create console handler
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.setLevel(log_level)
 
     # create formatter and add it to the handler
-    #formatter = logging.Formatter('%(asctime)s :: %(levelname)8s :: %(message)s', "%Y-%m-%d %H:%M:%S")
     formatter = logging.Formatter('%(asctime)s :: %(message)s', "%Y-%m-%d %H:%M:%S")
     stream_handler.setFormatter(formatter)
-    
+
     # add the handler to the logger
     self.logger.addHandler(stream_handler)
+
+    ## File logging
+
+    if logfile:
+      print "Logging to %s" % logfile
+      # create file handler
+      file_handler = logging.FileHandler('tmb-switcher.log', 'a')
+      file_handler.setLevel(logging.DEBUG)
+
+      formatter = logging.Formatter('%(asctime)s :: %(levelname)8s :: %(message)s', "%Y-%m-%d %H:%M:%S")
+      file_handler.setFormatter(formatter)
+
+      self.logger.addHandler(file_handler)
 
   def __load_config(self):
     # Load the config file
     config = ConfigParser.ConfigParser()
     config.read('./tmb-switcher.conf')
+
+    # Read the logging settings and setup the logger
+    logging_config = dict(config.items('Logging'))
+    self.__prepare_logger(logging_config)
 
     # Read the settings or use default values
     try:
