@@ -15,6 +15,7 @@
 import ConfigParser
 import logging
 import json
+import socket
 import subprocess
 import sys
 import time
@@ -76,38 +77,49 @@ class TradeMyBitSwitcher(object):
 
   # Retrieves the "bestalgo" from TMB api
   def best_algo(self):
-    data = self.api.bestalgo()
-    # parse json data into variables
-    algo1 = data[0]["algo"];
-    score1 = float(data[0]["score"]);
-    algo2 = data[1]["algo"];
-    score2 = float(data[1]["score"]);
-     
-    # return result
-    if (score2 - score1) / score1 > self.profitability_threshold:
-      return algo2
-    elif (score1 - score2) / score2 > self.profitability_threshold:
-      return algo1
-    else:
+    try:
+      data = self.api.bestalgo()
+      # parse json data into variables
+      algo1 = data[0]["algo"];
+      score1 = float(data[0]["score"]);
+      algo2 = data[1]["algo"];
+      score2 = float(data[1]["score"]);
+
+      # return result
+      if (score2 - score1) / score1 > self.profitability_threshold:
+        return algo2
+      elif (score1 - score2) / score2 > self.profitability_threshold:
+        return algo1
+      else:
+        return None
+    except socket.error: # cgminer not running?
+      self.logger.warning('Cannot connect to TMB API...')
       return None
 
 
   # Return scrypt/nscrypt based on the version of the miner running
   def current_algo(self):
-    data = self.cgminer.version()
-    version = data['STATUS'][0]['Description']
-    if version.startswith('vertminer'): # vertminer 0.5.4pre1
-      return 'nscrypt'
-    elif version.startswith('cgminer'): # cgminer 3.7.2
-      return 'scrypt'
-    else:
+    try:
+      data = self.cgminer.version()
+      version = data['STATUS'][0]['Description']
+      if version.startswith('vertminer'): # vertminer 0.5.4pre1
+        return 'nscrypt'
+      elif version.startswith('cgminer'): # cgminer 3.7.2
+        return 'scrypt'
+      else:
+        return None
+    except:
+      self.logger.warning('Cannot connect to miner API...')
       return None
 
   # Tells the current miner to exit and start the other one
   def switch_algo(self, algo):
     self.logger.info('=> Switching to %s (running %s)' % (algo, self.algos[algo].command))
-    self.cgminer.quit()
-    time.sleep(1) # Wait for it to quit / Or check the process id?
+    try:
+      self.cgminer.quit()
+      time.sleep(1) # Wait for it to quit / Or check the process id?
+    except socket.error:
+      pass # Cgminer not running
     subprocess.Popen(self.algos[algo].command)
 
   def __prepare_logger(self):
