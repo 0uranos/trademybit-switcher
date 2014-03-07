@@ -2,7 +2,9 @@
 
 A script to switch between the scrypt and n-scrypt multipool as profitability dictates.
 
-Currently tested on xubuntu 13.10 with cgminer-kalroth and vertminer
+Currently tested on:
+* xubuntu 13.10 with cgminer-kalroth and vertminer
+* xubuntu 13.10 with sgminer (nfactor scrypt/scrypt)
 
 ## Dependencies
 
@@ -18,13 +20,18 @@ Currently tested on xubuntu 13.10 with cgminer-kalroth and vertminer
 
 4. Finally run: `python trademybit-switcher.py`
 
-## Todo & ideas
+### SMOS Usage
 
-* Better algo detection
-  * sgminer
+Scripts courtesy of Strider3000.
+
+You'll need to have two `cgminer.conf` files under `/etc/bamt/`, `cgminer_scrypt.conf` and `cgminer_nscrypt.conf`.
+Then use the sample `xxx.smos.sh.example` scripts in the `scripts` folder.
+
+## Todo & ideas
 * Improve output/log
   * Stats?
   * Round time and submitted shares?
+* Improve switching algorithm. Use SMA?
 * CudaMiner support
 * Monitoring
   * Gpu status => auto restart
@@ -34,7 +41,7 @@ Currently tested on xubuntu 13.10 with cgminer-kalroth and vertminer
 In hope, not expectation:
 
 * BTC: `1JTGQbeh74jVFHhGAddYKe3S6oA8azmArk`
-* LTC: `TODO`
+* LTC: `LepbPVTB2hovQnedWX75Cea57mezKyBGkW`
 
 And if you'd like to tip other people whose work is used here:
 * merc for the awesome TradeMyBit pool (at time of writing. See https://pool.trademybit.com/ for latest):
