@@ -4,13 +4,10 @@
 
 import ConfigParser
 import logging
-import json
 import socket
 import subprocess
 import sys
 import time
-import urllib2
-import urlparse
 
 from trademybitapi import TradeMyBitAPI
 from pycgminer import CgminerAPI
@@ -18,13 +15,13 @@ from pycgminer import CgminerAPI
 
 class Algo:
     def __init__(self, name):
-        self.command = '' # the command that is run when we want to mine this coin.
-        self.name    = name
-        self.cnt     = 0
+        self.command    = '' # the command that is run when we want to mine this coin.
+        self.name       = name
+        self.cnt        = 0
 
 class TradeMyBitSwitcher(object):
     def __init__(self):
-    # Define supported algo
+        # Define supported algo
         self.algos = {}
         self.algos['scrypt']  =  Algo('Scrypt')
         self.algos['nscrypt'] =  Algo('N-Scrypt')
@@ -32,9 +29,6 @@ class TradeMyBitSwitcher(object):
         self.__load_config()
         self.api = TradeMyBitAPI(self.api_key, 'https://pool.trademybit.com/api/')
         self.cgminer = CgminerAPI(self.cgminer_host, self.cgminer_port)
-
-    def log(self, message):
-        print "[%s] %s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), message)
 
     def main(self):
         cnt_all = 0
@@ -62,20 +56,20 @@ class TradeMyBitSwitcher(object):
 
             # sleep
             self.logger.debug('Going to sleep for %dmin...' % self.idletime)
-            i=0
-            while i<self.idletime*60:
+            i = 0
+            while i < self.idletime*60:
                 time.sleep(1)
-                i+=1
+                i += 1
 
-    # Retrieves the "bestalgo" from TMB api
     def best_algo(self):
+        """Retrieves the "bestalgo" from TMB api"""
         try:
             data = self.api.bestalgo()
             # parse json data into variables
-            algo1 = data[0]["algo"];
-            score1 = float(data[0]["score"]);
-            algo2 = data[1]["algo"];
-            score2 = float(data[1]["score"]);
+            algo1 = data[0]["algo"]
+            score1 = float(data[0]["score"])
+            algo2 = data[1]["algo"]
+            score2 = float(data[1]["score"])
 
             self.logger.debug("%s : %f | %s: %f" % (algo1, score1, algo2, score2))
 
@@ -106,8 +100,8 @@ class TradeMyBitSwitcher(object):
             self.logger.warning('Cannot connect to miner API...')
             return None
 
-    # Tells the current miner to exit and start the other one
     def switch_algo(self, algo):
+        """Tells the current miner to exit and start the other one"""
         self.logger.info('=> Switching to %s (running %s)' % (algo, self.algos[algo].command))
         try:
             self.cgminer.quit()
@@ -116,8 +110,9 @@ class TradeMyBitSwitcher(object):
             pass # Cgminer not running
         subprocess.Popen(self.algos[algo].command)
 
-    # Configure the logger
     def __prepare_logger(self, logging_config={}):
+        """Configure the logger"""
+
         logfile = logging_config.get('logfile')
 
         # Set console log level based on the config
@@ -199,9 +194,13 @@ class TradeMyBitSwitcher(object):
 
         for key in self.algos:
             try:
-                self.algos[key].command = config.get('Scripts',key)
+                self.algos[key].command = config.get('Scripts', key)
             except:
                 continue
 
-switcher = TradeMyBitSwitcher()
-switcher.main()
+def main():
+    switcher = TradeMyBitSwitcher()
+    switcher.main()
+
+if __name__ == '__main__':
+    main()
