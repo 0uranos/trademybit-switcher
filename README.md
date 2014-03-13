@@ -2,7 +2,10 @@
 
 A script to switch between the scrypt and n-scrypt multipool as profitability dictates.
 
-Currently tested on xubuntu 13.10 with cgminer-kalroth and vertminer
+Currently tested on:
+* xubuntu 13.10 with cgminer-kalroth and vertminer
+* xubuntu 13.10 with sgminer (nfactor branch)
+* SMOS Linux (Strider3000)
 
 ## Dependencies
 
@@ -18,13 +21,39 @@ Currently tested on xubuntu 13.10 with cgminer-kalroth and vertminer
 
 4. Finally run: `python trademybit-switcher.py`
 
-## Todo & ideas
 
-* Better algo detection
-  * sgminer
+```
+$ python trademybit-switcher.py 
+------------------------------------------------------------------------
+2014-03-13 09:27:34 :: Fetching data...
+2014-03-13 09:27:35 :: scrypt : 128.310230 | nscrypt: 120.328550
+2014-03-13 09:27:35 :: => Best: None | Currently mining: None
+2014-03-13 09:27:35 :: No miner running
+2014-03-13 09:27:35 :: => Switching to nscrypt (running ./scripts/nscrypt.sgminer.sh)
+...
+2014-03-13 18:35:56 :: nscrypt : 122.925360 | scrypt: 77.183520
+2014-03-13 18:35:56 :: => Best: nscrypt | Currently mining: scrypt
+2014-03-13 18:35:56 :: => Switching to nscrypt (running ./scripts/nscrypt.sgminer.sh)
+2014-03-13 18:35:57 :: Going to sleep for 5min...
+...
+```
+
+### SMOS Usage
+
+_Scripts courtesy of Strider3000._
+
+You'll need to have two `cgminer.conf` files under `/etc/bamt/`, `cgminer_scrypt.conf` and `cgminer_nscrypt.conf`.
+Then use the sample `xxx.smos.sh.example` scripts in the `scripts` folder.
+
+## Support
+
+Join `#switcher` on `irc.framper.com`
+
+## Todo & ideas
 * Improve output/log
   * Stats?
   * Round time and submitted shares?
+* Improve switching algorithm. Use SMA?
 * CudaMiner support
 * Monitoring
   * Gpu status => auto restart
@@ -34,7 +63,7 @@ Currently tested on xubuntu 13.10 with cgminer-kalroth and vertminer
 In hope, not expectation:
 
 * BTC: `1JTGQbeh74jVFHhGAddYKe3S6oA8azmArk`
-* LTC: `TODO`
+* LTC: `LepbPVTB2hovQnedWX75Cea57mezKyBGkW`
 
 And if you'd like to tip other people whose work is used here:
 * merc for the awesome TradeMyBit pool (at time of writing. See https://pool.trademybit.com/ for latest):

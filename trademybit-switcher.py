@@ -30,8 +30,11 @@ class TradeMyBitSwitcher(object):
         self.api = TradeMyBitAPI(self.api_key, 'https://pool.trademybit.com/api/')
         self.cgminer = CgminerAPI(self.cgminer_host, self.cgminer_port)
 
+        # We track state in a variable
+        self.current_algo = None
+
     def main(self):
-        cnt_all = 0
+        # cnt_all = 0
         # main loop
         print '-' * 72
 
@@ -42,14 +45,14 @@ class TradeMyBitSwitcher(object):
             # get data from sources
             self.logger.debug("Fetching data...")
             bestalgo = self.best_algo()
-            currentalgo = self.current_algo()
           
-            self.logger.debug("=> Best: %s | Currently mining: %s" % (bestalgo, currentalgo))
+            self.logger.debug("=> Best: %s | Currently mining: %s" % (bestalgo, self.current_algo))
          
-            if bestalgo != currentalgo and bestalgo != None:
+            if bestalgo != self.current_algo and bestalgo != None:
                 # i.e. if we're not already mining the best algo
                 self.switch_algo(bestalgo)
-            elif currentalgo == None:
+
+            elif self.current_algo == None:
                 # No miner running and profitability is similar, run the first algo
                 self.logger.warning('No miner running')
                 self.switch_algo(self.algos.keys()[0])
@@ -84,25 +87,27 @@ class TradeMyBitSwitcher(object):
             self.logger.warning('Cannot connect to TMB API...')
             return None
 
-
-    # Return scrypt/nscrypt based on the version of the miner running
-    def current_algo(self):
-        try:
-            data = self.cgminer.version()
-            version = data['STATUS'][0]['Description']
-            if version.startswith('vertminer'): # vertminer 0.5.4pre1
-                return 'nscrypt'
-            elif version.startswith('cgminer'): # cgminer 3.7.2
-                return 'scrypt'
-            else:
-                return None
-        except:
-            self.logger.warning('Cannot connect to miner API...')
-            return None
+    # # Return scrypt/nscrypt based on the version of the miner running
+    # # Temporarly disabled to support sgminer since we can't reliably determine
+    # # if sgminer is mining nfactor 10 or 11
+    # def current_algo(self):
+    #     try:
+    #         data = self.cgminer.version()
+    #         version = data['STATUS'][0]['Description']
+    #         if version.startswith('vertminer'): # vertminer 0.5.4pre1
+    #             return 'nscrypt'
+    #         elif version.startswith('cgminer'): # cgminer 3.7.2
+    #             return 'scrypt'
+    #         else:
+    #             return None
+    #     except:
+    #         self.logger.warning('Cannot connect to miner API...')
+    #         return None
 
     def switch_algo(self, algo):
         """Tells the current miner to exit and start the other one"""
         self.logger.info('=> Switching to %s (running %s)' % (algo, self.algos[algo].command))
+        self.current_algo = algo
         try:
             self.cgminer.quit()
             time.sleep(self.switchtime) # Wait for it to quit / Or check the process id?

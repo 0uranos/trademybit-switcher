@@ -1,0 +1,16 @@
+#!/bin/sh
+# Sample nscrypt start script for SMOS
+# Replace this script with one of your own.
+
+# Path where configurations are stored
+cd /etc/bamt/
+
+echo "Stopping the miner!"
+mine stop
+echo "Sleeping for three seconds"
+sleep 3
+echo "Changing the cgminer.conf file to nscrypt!"
+rm cgminer.conf
+cp cgminer_nscrypt.conf cgminer.conf
+echo "Starting the miner!"
+mine start
