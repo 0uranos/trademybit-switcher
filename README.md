@@ -4,7 +4,8 @@ A script to switch between the scrypt and n-scrypt multipool as profitability di
 
 Currently tested on:
 * xubuntu 13.10 with cgminer-kalroth and vertminer
-* xubuntu 13.10 with sgminer (nfactor scrypt/scrypt)
+* xubuntu 13.10 with sgminer (nfactor branch)
+* SMOS Linux (Strider3000)
 
 ## Dependencies
 
@@ -20,12 +21,33 @@ Currently tested on:
 
 4. Finally run: `python trademybit-switcher.py`
 
+
+```
+$ python trademybit-switcher.py 
+------------------------------------------------------------------------
+2014-03-13 09:27:34 :: Fetching data...
+2014-03-13 09:27:35 :: scrypt : 128.310230 | nscrypt: 120.328550
+2014-03-13 09:27:35 :: => Best: None | Currently mining: None
+2014-03-13 09:27:35 :: No miner running
+2014-03-13 09:27:35 :: => Switching to nscrypt (running ./scripts/nscrypt.sgminer.sh)
+...
+2014-03-13 18:35:56 :: nscrypt : 122.925360 | scrypt: 77.183520
+2014-03-13 18:35:56 :: => Best: nscrypt | Currently mining: scrypt
+2014-03-13 18:35:56 :: => Switching to nscrypt (running ./scripts/nscrypt.sgminer.sh)
+2014-03-13 18:35:57 :: Going to sleep for 5min...
+...
+```
+
 ### SMOS Usage
 
-Scripts courtesy of Strider3000.
+_Scripts courtesy of Strider3000._
 
 You'll need to have two `cgminer.conf` files under `/etc/bamt/`, `cgminer_scrypt.conf` and `cgminer_nscrypt.conf`.
 Then use the sample `xxx.smos.sh.example` scripts in the `scripts` folder.
+
+## Support
+
+Join `#switcher` on `irc.framper.com`
 
 ## Todo & ideas
 * Improve output/log
