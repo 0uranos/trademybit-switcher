@@ -38,35 +38,47 @@ class TradeMyBitSwitcher(object):
         self.current_algo = None
 
     def main(self):
-        # cnt_all = 0
-        # main loop
-        print '-' * 72
+        try:
+            # cnt_all = 0
+            # main loop
+            print '-' * 72
 
-        while True:
-            # print header
-            # self.logger.info("<<< Round %d >>>" % (cnt_all+1))
-          
-            # get data from sources
-            self.logger.debug("Fetching data...")
-            bestalgo = self.best_algo()
-          
-            self.logger.debug("=> Best: %s | Currently mining: %s" % (bestalgo, self.current_algo))
-         
-            if bestalgo != self.current_algo and bestalgo != None:
-                # i.e. if we're not already mining the best algo
-                self.switch_algo(bestalgo)
+            while True:
+                # print header
+                # self.logger.info("<<< Round %d >>>" % (cnt_all+1))
 
-            elif self.current_algo == None:
-                # No miner running and profitability is similar, run the first algo
-                self.logger.warning('No miner running')
-                self.switch_algo(self.algos.keys()[0])
+                # get data from sources
+                self.logger.debug("Fetching data...")
+                bestalgo = self.best_algo()
 
-            # sleep
-            self.logger.debug('Going to sleep for %dmin...' % self.idletime)
-            i = 0
-            while i < self.idletime*60:
-                time.sleep(1)
-                i += 1
+                self.logger.debug("=> Best: %s | Currently mining: %s" % (bestalgo, self.current_algo))
+
+                if bestalgo != self.current_algo and bestalgo != None:
+                    # i.e. if we're not already mining the best algo
+                    self.switch_algo(bestalgo)
+
+                elif self.current_algo == None:
+                    # No miner running and profitability is similar, run the first algo
+                    self.logger.warning('No miner running')
+                    self.switch_algo(self.algos.keys()[0])
+
+                # sleep
+                self.logger.debug('Going to sleep for %dmin...' % self.idletime)
+                i = 0
+                while i < self.idletime*60:
+                    time.sleep(1)
+                    i += 1
+        except KeyboardInterrupt:
+            self.logger.warn('Caught KeyboardInterrupt, terminating...')
+            self.cleanup()
+
+
+    def cleanup(self):
+        """Cleanup our mess"""
+        if self.profitability_log:
+            self.profitability_file.close()
+
+        sys.exit()
 
     def best_algo(self):
         """Retrieves the "bestalgo" from TMB api"""
