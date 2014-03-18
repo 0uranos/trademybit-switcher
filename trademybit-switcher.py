@@ -148,7 +148,7 @@ class TradeMyBitSwitcher(object):
         if logfile:
             print "Logging to %s" % logfile
             # create file handler
-            file_handler = logging.FileHandler('tmb-switcher.log', 'a')
+            file_handler = logging.FileHandler(logfile, 'a')
             file_handler.setLevel(logging.DEBUG)
 
             formatter = logging.Formatter('%(asctime)s :: %(levelname)8s :: %(message)s', "%Y-%m-%d %H:%M:%S")
