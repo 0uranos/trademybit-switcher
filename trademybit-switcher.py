@@ -199,8 +199,14 @@ class TradeMyBitSwitcher(object):
 
         for key in self.algos:
             try:
-                self.algos[key].command = config.get('Scripts', key)
-            except:
+                script = config.get('Scripts', key)
+                if os.path.isfile(script):
+                    self.algos[key].command = script
+                else:
+                    self.logger.critical('Script for %s not found!' % key)
+                    self.cleanup()
+            except ConfigParser.NoOptionError :
+                self.logger.warning('Script for %s not configured!' % key)
                 continue
 
 def main():
