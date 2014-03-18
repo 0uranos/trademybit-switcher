@@ -3,7 +3,10 @@
 #
 
 import ConfigParser
+import csv
+import datetime
 import logging
+import os.path
 import socket
 import subprocess
 import sys
@@ -26,6 +29,7 @@ class TradeMyBitSwitcher(object):
         self.algos['scrypt']  =  Algo('Scrypt')
         self.algos['nscrypt'] =  Algo('N-Scrypt')
 
+        self.profitability_log = None
         self.__load_config()
         self.api = TradeMyBitAPI(self.api_key, 'https://pool.trademybit.com/api/')
         self.cgminer = CgminerAPI(self.cgminer_host, self.cgminer_port)
@@ -78,12 +82,18 @@ class TradeMyBitSwitcher(object):
 
             # return result
             if (score2 - score1) / score1 > self.profitability_threshold:
-                return algo2
+                best = algo2
             elif (score1 - score2) / score2 > self.profitability_threshold:
-                return algo1
+                best = algo1
             else:
-                return None
-        except socket.error: # cgminer not running?
+                best = None
+
+            if self.profitability_log:
+                self.profitability_log.writerow({'date': datetime.datetime.now(), algo1: score1, algo2: score2})
+                self.profitability_file.flush()
+
+            return best
+        except socket.error:
             self.logger.warning('Cannot connect to TMB API...')
             return None
 
@@ -155,6 +165,21 @@ class TradeMyBitSwitcher(object):
             file_handler.setFormatter(formatter)
 
             self.logger.addHandler(file_handler)
+
+        csv_file = logging_config.get('profitability_log')
+        if csv_file:
+            self.__prepare_profitability_log(csv_file)
+
+    def __prepare_profitability_log(self, csv_file):
+        # Check if file is already present to know if we need to write the headers
+        write_header = not(os.path.isfile(csv_file))
+
+        self.profitability_file = open(csv_file, 'ab')
+
+        self.profitability_log = csv.DictWriter(self.profitability_file, ['date', 'scrypt', 'nscrypt'])
+
+        if write_header:
+            self.profitability_log.writeheader()
 
     def __load_config(self):
         # Load the config file

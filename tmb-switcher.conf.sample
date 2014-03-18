@@ -10,6 +10,9 @@ verbose = true
 # Uncomment below to enable logfile
 #logfile = /tmp/tmb-switcher.log
 
+# Uncomment to enable profitability logging to a CSV file
+#profitability_log = profitability.csv
+
 [Misc]
 # Idle Time (in minutes) between two profitability checks.
 idletime = 5
