@@ -135,7 +135,13 @@ class TradeMyBitSwitcher(object):
             time.sleep(self.switchtime) # Wait for it to quit / Or check the process id?
         except socket.error:
             pass # Cgminer not running
-        subprocess.Popen(self.algos[algo].command)
+
+        try:
+            subprocess.Popen(self.algos[algo].command)
+        except OSError:
+            self.logger.critical('Cannot execute [%s]!' % self.algos[algo].command)
+            self.logger.critical('Make sure your miner startup scripts are executable before continuing.')
+            sys.exit()
 
     def __prepare_logger(self, logging_config={}):
         """Configure the logger"""
@@ -194,9 +200,16 @@ class TradeMyBitSwitcher(object):
             self.profitability_log.writeheader()
 
     def __load_config(self):
+        config_file =  'tmb-switcher.conf'
+        #  Check if the config file is present
+        if not(os.path.isfile(config_file)):
+            print "ERROR: Configuration file not found!"
+            print "Make sure the tmb-switcher.conf file is present!"
+            sys.exit()
+
         # Load the config file
         config = ConfigParser.ConfigParser()
-        config.read('./tmb-switcher.conf')
+        config.read(config_file)
 
         # Read the logging settings and setup the logger
         logging_config = dict(config.items('Logging'))
