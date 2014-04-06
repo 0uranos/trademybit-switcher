@@ -105,7 +105,7 @@ class TradeMyBitSwitcher(object):
                 self.profitability_file.flush()
 
             return best
-        except socket.error:
+        except (socket.error, KeyError):
             self.logger.warning('Cannot connect to TMB API...')
             return None
 

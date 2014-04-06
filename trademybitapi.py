@@ -14,8 +14,10 @@ class TradeMyBitAPI(object):
     def command(self, command, arg = None):
         """ Send a command, receive the JSON response and decode it. """
         url = urlparse.urljoin(self.base_url, '%s?key=%s') % (command, self.api_key)
-        obj = json.load(self.opener.open(url))
-        # print obj # DEBUG
+        try:
+            obj = json.load(self.opener.open(url))
+        except: 
+            obj = {}
         return obj
 
     def __getattr__(self, attr):
