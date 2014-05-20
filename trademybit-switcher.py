@@ -26,8 +26,6 @@ class TradeMyBitSwitcher(object):
     def __init__(self):
         # Define supported algo
         self.algos = {}
-        self.algos['scrypt']  =  Algo('Scrypt')
-        self.algos['nscrypt'] =  Algo('N-Scrypt')
 
         self.profitability_log = None
         self.__load_config()
@@ -58,6 +56,7 @@ class TradeMyBitSwitcher(object):
                     self.switch_algo(bestalgo)
 
                 elif self.current_algo == None:
+                    # TODO: useless?
                     # No miner running and profitability is similar, run the first algo
                     self.logger.warning('No miner running')
                     self.switch_algo(self.algos.keys()[0])
@@ -85,23 +84,28 @@ class TradeMyBitSwitcher(object):
         try:
             data = self.api.bestalgo()
             # parse json data into variables
-            algo1 = data[0]["algo"]
-            score1 = float(data[0]["score"])
-            algo2 = data[1]["algo"]
-            score2 = float(data[1]["score"])
+            scores = {}
+            logString = []
+            for algo in data:
+                logString.append("%s : %f" % (algo['algo'], float(algo['score'])))
+                if self.algos.has_key(algo['algo']):
+                  scores[algo['algo']] = float(algo['score'])
 
-            self.logger.debug("%s : %f | %s: %f" % (algo1, score1, algo2, score2))
+            self.logger.debug(' | '.join(logString))
 
             # return result
-            if (score2 - score1) / score1 > self.profitability_threshold:
-                best = algo2
-            elif (score1 - score2) / score2 > self.profitability_threshold:
-                best = algo1
+            best_algo = max(scores.iterkeys(), key=(lambda key: scores[key]))
+
+            # Switch if not yet mining or we're crossing the threshold
+            if (self.current_algo == None) or \
+                ((scores[best_algo] - scores[self.current_algo] / scores[self.current_algo]) > self.profitability_threshold):
+                best = best_algo
             else:
                 best = None
 
             if self.profitability_log:
-                self.profitability_log.writerow({'date': datetime.datetime.now(), algo1: score1, algo2: score2})
+                scores['date'] = datetime.datetime.now()
+                self.profitability_log.writerow(scores)
                 self.profitability_file.flush()
 
             return best
@@ -159,7 +163,7 @@ class TradeMyBitSwitcher(object):
         self.logger.setLevel(logging.DEBUG)
 
         ## Console logging
-        
+
         # create console handler
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(log_level)
@@ -184,17 +188,13 @@ class TradeMyBitSwitcher(object):
 
             self.logger.addHandler(file_handler)
 
-        csv_file = logging_config.get('profitability_log')
-        if csv_file:
-            self.__prepare_profitability_log(csv_file)
-
     def __prepare_profitability_log(self, csv_file):
         # Check if file is already present to know if we need to write the headers
         write_header = not(os.path.isfile(csv_file))
 
         self.profitability_file = open(csv_file, 'ab')
 
-        self.profitability_log = csv.DictWriter(self.profitability_file, ['date', 'scrypt', 'nscrypt'])
+        self.profitability_log = csv.DictWriter(self.profitability_file, ['date'] + self.algos.keys())
 
         if write_header:
             self.profitability_log.writeheader()
@@ -247,10 +247,11 @@ class TradeMyBitSwitcher(object):
             self.logger.warning("Could not read cgminer port from config file. Defaulting to 4028")
             self.cgminer_host = 4028
 
-        for key in self.algos:
+        for key in dict(config.items('Scripts')):
             try:
                 script = config.get('Scripts', key)
                 if os.path.isfile(script):
+                    self.algos[key] = Algo(key)
                     self.algos[key].command = script
                 else:
                     self.logger.critical('Script for %s not found!' % key)
@@ -258,6 +259,15 @@ class TradeMyBitSwitcher(object):
             except ConfigParser.NoOptionError :
                 self.logger.warning('Script for %s not configured!' % key)
                 continue
+
+        self.logger.debug("Enabled algorithms: %s" % ', '.join(self.algos.keys()))
+        if not self.algos:
+            self.logger.critical('No mining algorithms enabled!')
+            sys.exit()
+
+        csv_file = logging_config.get('profitability_log')
+        if csv_file:
+            self.__prepare_profitability_log(csv_file)
 
 def main():
     switcher = TradeMyBitSwitcher()
