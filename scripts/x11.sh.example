@@ -1,0 +1,12 @@
+#!/bin/sh
+#Replace this script with one of your own.
+
+export DISPLAY=:0
+export GPU_USE_SYNC_OBJECTS=1
+export GPU_MAX_ALLOC_PERCENT=100
+
+# Path were sph-sgminer is installed
+cd ~/BTC/sph-sgminer
+
+#Start x11 mining with API access enabled for future instances of the above command
+screen -dmS x11 ./sgminer -k darkcoin -c ~/.cgminer/x11.conf  --auto-fan --api-network --api-listen --api-allow W:127.0.0.1

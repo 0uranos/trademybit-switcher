@@ -32,15 +32,19 @@ port=4028
 
 [Scripts]
 # Script that start mining the appropriate algo
-# Examples are included
+# To disable mining an algorithm, comment it out.
+# At least one algorithm needs to be enabled!
 
-# You should have scripts that set your clocks and environment 
-# variables appropriately, and start the appropriate miner. 
+# You should have scripts that set your clocks and environment
+# variables appropriately, and start the appropriate miner.
+# Examples are included in the scripts folder.
 
 # For Linux, uncomment below
 #nscrypt = ./scripts/nscrypt.sh
 #scrypt  = ./scripts/scrypt.sh
+#x11     = ./scripts/x11.sh
 
 # For Windows, uncomment below
 #nscrypt = scripts\nscrypt.bat
 #scrypt  = scripts\scrypt.bat
+#x11     = scripts\x11.sh

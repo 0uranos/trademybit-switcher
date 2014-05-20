@@ -1,0 +1,16 @@
+#!/bin/sh
+# Sample x11 start script for SMOS
+# Replace this script with one of your own.
+
+# Path where configurations are stored
+cd /etc/bamt/
+
+echo "Stopping the miner!"
+mine stop
+echo "Sleeping for three seconds"
+sleep 3
+echo "Changing the cgminer.conf file to x11!"
+rm cgminer.conf
+cp cgminer_x11.conf cgminer.conf
+echo "Starting the miner!"
+mine start
