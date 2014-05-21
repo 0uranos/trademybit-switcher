@@ -93,6 +93,10 @@ class TradeMyBitSwitcher(object):
 
             self.logger.debug(' | '.join(logString))
 
+            # Problem with the API, scores is empty.
+            if not bool(scores):
+                return None
+
             # return result
             best_algo = max(scores.iterkeys(), key=(lambda key: scores[key]))
 
