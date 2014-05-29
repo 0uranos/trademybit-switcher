@@ -102,7 +102,8 @@ class TradeMyBitSwitcher(object):
 
             # Switch if not yet mining or we're crossing the threshold
             if (self.current_algo == None) or \
-                ((scores[best_algo] - scores[self.current_algo] / scores[self.current_algo]) > self.profitability_threshold):
+                (self.current_algo == best_algo) or \
+                (((scores[best_algo] - scores[self.current_algo]) / scores[self.current_algo]) > self.profitability_threshold):
                 best = best_algo
             else:
                 best = None
